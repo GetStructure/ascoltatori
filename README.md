@@ -12,6 +12,7 @@ Ascoltatori is a simple publish/subscribe library supporting the following broke
 * [RabbitMQ](http://www.rabbitmq.com/) and all implementations of the [AMQP](http://www.amqp.org/) protocol.
 * [ZeroMQ](http://www.zeromq.org/) to use Ascoltatori in a P2P fashion.
 * [QlobberFSQ](https://github.com/davedoesdev/qlobber-fsq), a shared file system queue.
+* [Apache Kafka](http://kafka.apache.org), a high-throughput distributed messaging system.
 * Memory-only routing, using [Qlobber](https://github.com/davedoesdev/qlobber).
 
 Find out more about Ascoltatori reading the
@@ -40,7 +41,7 @@ $ npm install
 ## Getting Started
 
 Ascoltatori focuses on providing a simple and unique abstraction for all
-supported brokes. Here a simple example using Redis.
+supported brokers. Here is a simple example using Redis:
 
 ```javascript
 var ascoltatori = require('ascoltatori');
@@ -228,6 +229,22 @@ ascoltatori.build(settings, function (err, ascoltatore) {
 });
 ```
 
+Use with [amqplib](https://www.npmjs.com/package/amqplib)
+
+```javascript
+var ascoltatori = require('ascoltatori');
+var settings = {
+  type: 'amqplib',
+  json: false,
+  amqp: require('amqplib/callback_api'),
+  exchange: 'ascolatore5672'
+};
+
+ascoltatori.build(settings, function (err, ascoltatore) {
+  // ...
+});
+```
+
 ### ZeroMQ
 
 ```javascript
@@ -289,33 +306,31 @@ require('ascoltatori').build({ json: false }, function(err, a) {
 });
 ```
 
-## Domain support
-
-Ascoltatori supports the [node.js domain API](http://nodejs.org/api/domain.html).
-Use it calling the `registerDomain` function on your Ascoltatore and it will take
-care of routing the exceptions to the given domain. Look at this example:
+### Apache Kafka
 
 ```javascript
 var ascoltatori = require('ascoltatori');
-var domain = require('domain');
+var settings = {
+  type: 'kafka',
+  json: false,
+  kafka: require("kafka-node"),
+  connectString: "localhost:2181",
+  clientId: "ascoltatori",
+  groupId: "ascoltatori",
+  defaultEncoding: "utf8",
+  encodings: {
+    image: "buffer"
+  }
+};
 
-var d = domain.create();
-d.on('error', function() {
-  console.log(arguments);
-});
-
-ascoltatori.build(function (err, ascoltatore) {
-  ascoltatore.registerDomain(d);
-
-  ascoltatore.subscribe('hello/*', function() {
-    throw new Error();
-  });
-
-  ascoltatore.publish('hello/42', 'a message', function() {
-    console.log('message published');
-  });
+ascoltatori.build(settings, function (err, ascoltatore) {
+  // ...
 });
 ```
+
+If you publish to a kafka topic that doesn't exist, that topic will be created using the default settings.
+
+If you subscribe to a kafka topic that doesn't exist, that subscription will take affect only when something is published to the kafka topic through this ascoltatori.
 
 
 ## Debugging
@@ -336,6 +351,7 @@ The following debug flags are supported:
 * `ascoltatori:zmq`
 * `ascoltatori:ee2`
 * `ascoltatori:filesystem`
+* `ascoltatori:kafka`
 
 
 ## Reliability
@@ -362,6 +378,7 @@ Use the [issue tracker](http://github.com/mcollina/ascoltatori/issues) for bugs.
 * [Mosquitto](http://mosquitto.org/)
 * [RabbitMQ](http://www.rabbitmq.com/)
 * [ZeroMQ](http://www.zeromq.org/)
+* [Apache Kafka](http://kafka.apache.org/)
 
 
 ## Authors

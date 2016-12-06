@@ -1,14 +1,11 @@
 "use strict";
-
 global.sinon = require("sinon");
 global.chai = require("chai");
 global.expect = require("chai").expect;
-global.async = require("async");
 
 global.redisSettings = function() {
   return {
     json: false,
-    redis: require('redis'),
     port: 6379,
     host: '127.0.0.1'
   };
@@ -29,10 +26,31 @@ global.zeromqSettings = function(remote_ports) {
   };
 };
 
+global.kafkaSettings = function(useHighLevelConsumer) {
+  return {
+    json: false,
+    kafka: require("kafka-node"),
+    connectionString: "localhost:2181",
+    clientId: "test",
+    groupId: "test",
+    useHighLevelConsumer: useHighLevelConsumer || false ,
+    defaultEncoding: "utf8",
+    encodings: {image: "buffer", hello_42: "utf-8"}
+  };
+};
+
 global.AMQPSettings = function() {
   return {
     json: false,
     amqp: require("amqp"),
+    exchange: "ascolatore" + global.nextPort()
+  };
+};
+
+global.AMQPLibSettings = function() {
+  return {
+    json: false,
+    amqp: require("amqplib/callback_api"),
     exchange: "ascolatore" + global.nextPort()
   };
 };
@@ -63,6 +81,7 @@ global.trieSettings = function() {
 
 global.fileSystemSettings = function() {
   return {
+    single: false,
     json: false
   };
 };
