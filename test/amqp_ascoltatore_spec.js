@@ -10,6 +10,16 @@ describeAscoltatore("AMQP", function() {
     });
   });
 
+  it("should publish a binary payload", function(done) {
+    var that = this;
+    that.instance.sub("hello/*", function(topic, value) {
+      expect(value).to.eql(new Buffer([248]));
+      done();
+    }, function() {
+      that.instance.pub("hello/123", new Buffer([248]));
+    });
+  });
+
   it("should sync two instances", function(done) {
     var other = new ascoltatori.AMQPAscoltatore(this.instance._opts);
     var that = this;
